@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+  <head>
+    <title>Chat</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  </head>
+
+  <body>
+    <h1>Form</h1>
+    <form action="#" th:action="@{/}" th:object="${model}" method="post">
+    	<p>Id: <input type="text" th:field="*{id}" /></p>
+        <p>passwd: <input type="password" th:field="*{passwd}" /></p>
+        <p><input type="submit" value="Submit" /> <input type="reset" value="Reset" /></p>
+    </form>
+  </body>
+
+</html>

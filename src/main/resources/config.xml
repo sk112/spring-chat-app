@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/integration/xmpp	https://www.springframework.org/schema/integration/xmpp/spring-integration-xmpp.xsd"
+    xmlns:int-xmpp="http://www.springframework.org/schema/integration/xmpp"
+>
+<int-xmpp:xmpp-connection
+    id="myConnection"
+    user="admin"
+    password="admin"
+    host="localhost"
+    port="9000"
+    resource="theNameOfTheResource"
+    subscription-mode="accept_all"/>
+</beans>
