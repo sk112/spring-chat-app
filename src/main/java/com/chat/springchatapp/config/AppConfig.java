@@ -2,35 +2,35 @@ package com.chat.springchatapp.config;
 
 import com.chat.springchatapp.models.LoginUser;
 
+import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration.Builder;
 import org.jxmpp.stringprep.XmppStringprepException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
 public class AppConfig {
 
-    @Autowired
-    ApplicationContext context;
+    LoginUser loginUser = new LoginUser();
+    AbstractXMPPConnection connection;
 
-    @Bean(name = "loginUser")
-    public LoginUser loginUser() {
-        return new LoginUser();
+    public LoginUser getLoginUser() {
+        return this.loginUser;
     }
 
-    @Bean
-    public Builder gConnectionConfiguration(LoginUser loginUser) throws XmppStringprepException {
-        LoginUser user = (LoginUser) context.getBean("loginUser");
-        String userId = user.getId();
-        String passwd = user.getPasswd();
+    public Builder gConnectionConfiguration() throws XmppStringprepException {
+        LoginUser user = getLoginUser();
 
         return  XMPPTCPConnectionConfiguration.builder()
-                .setUsernameAndPassword(userId, passwd)
+                .setUsernameAndPassword(user.id, user.passwd)
                 .setXmppDomain("docker.internal")
                 .setHost("host.docker.internal")
                 .setPort(5222);
+    }
+
+    public void setConnection(AbstractXMPPConnection conn){
+        this.connection = conn;
+    }
+
+    public AbstractXMPPConnection getConnection(){
+        return connection;
     }
 }

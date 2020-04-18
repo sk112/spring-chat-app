@@ -1,23 +1,20 @@
 package com.chat.springchatapp.controllers;
 
+import com.chat.springchatapp.config.AppConfig;
 import com.chat.springchatapp.models.LoginUser;
+import com.chat.springchatapp.services.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.view.RedirectView;
 
 
 @Controller
 public class HomeController {
     
-    @Autowired
-    public ApplicationContext context;
-
     @GetMapping(value="/")
     public String home(Model model) {
         model.addAttribute("model", new LoginUser());
@@ -25,15 +22,16 @@ public class HomeController {
     }
     
     @PostMapping(value="/")
-    public RedirectView postMethodName(@ModelAttribute LoginUser user, Model model) {
-       LoginUser userBean = (LoginUser) context.getBean("loginUser");
+    public String postMethodName(@ModelAttribute LoginUser user, Model model) {
+        
+        // RedirectView redirectView = new RedirectView("", true);
+        // redirectView.addStaticAttribute("loginUser", user);
 
-        userBean.setId(user.id);
-        userBean.setPasswd(user.passwd);
+        UserService.appConfigs.put(user.id, new AppConfig());
+        UserService.appConfigs.get(user.id).getLoginUser().setId(user.id);
+        UserService.appConfigs.get(user.id).getLoginUser().setPasswd(user.passwd);
 
-        RedirectView redirectView = new RedirectView("/connect", true);
-        redirectView.addStaticAttribute("loginUser", user);
-        return redirectView;
+        return "redirect:/connect/"+user.id;
     }
 
     
