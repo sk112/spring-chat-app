@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.chat.springchatapp.models.ChatMessage;
 import com.chat.springchatapp.models.LoginUser;
+import com.chat.springchatapp.services.UserService;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.SmackException;
@@ -19,34 +20,32 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration.Builder;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class ChatController {
 
-    @Autowired
-    ApplicationContext appContext;
-
-    @Autowired
-    Builder configBuilder;
-
-    @Autowired
-    LoginUser loginUser;
-
-    AbstractXMPPConnection connection;
-
-    @GetMapping("/connect")
-    public String connect(Model model) throws SmackException, IOException, XMPPException, InterruptedException {
-
+    // @ConnectMapping("/connect")
+    // public void init() throws XmppStringprepException {
+    //     configBuilder = UserService.appConfig.gConnectionConfiguration();
+    //     loginUser = UserService.appConfig.getLoginUser();
+    // }
+    
+    @GetMapping("/connect/{user}")
+    public String connect(@PathVariable("user") String userId, Model model) throws SmackException, IOException, XMPPException, InterruptedException {
+ 
+        Builder configBuilder = UserService.appConfigs.get(userId).gConnectionConfiguration();
+        LoginUser loginUser = UserService.appConfigs.get(userId).getLoginUser();
+        
         XMPPTCPConnectionConfiguration config = configBuilder.setUsernameAndPassword(loginUser.id, loginUser.passwd).build();
-        connection = new XMPPTCPConnection(config);
+        AbstractXMPPConnection connection = new XMPPTCPConnection(config);
 
+        UserService.appConfigs.get(userId).setConnection(connection);
         connection.connect();
 
         if (connection.isConnected()) {
@@ -59,9 +58,11 @@ public class ChatController {
         return "failure";
     }
 
-    @PostMapping("/message")
-    public String postMessage(@ModelAttribute ChatMessage msg, Model model) throws XmppStringprepException, NotConnectedException, InterruptedException {
-        
+    @PostMapping("/message/{user}")
+    public String postMessage(@PathVariable("user") String userId,@ModelAttribute ChatMessage msg, Model model) throws XmppStringprepException, NotConnectedException, InterruptedException {
+        AbstractXMPPConnection connection = UserService.appConfigs.get(userId).getConnection();
+        LoginUser loginUser = UserService.appConfigs.get(userId).getLoginUser();
+
         ChatManager chatManager = ChatManager.getInstanceFor(connection);
         chatManager.addIncomingListener(new IncomingChatMessageListener(){
             
